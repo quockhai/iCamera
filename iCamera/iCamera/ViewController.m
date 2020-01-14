@@ -75,18 +75,12 @@
 }
 
 -(void)captureButtonTapped:(UIButton*)buton {
-//    guard let captureSession = captureSession, captureSession.isRunning else { completion(nil, CameraControllerError.captureSessionIsMissing); return }
-//
-//    let settings = AVCapturePhotoSettings()
-//    settings.flashMode = self.flashMode
-//
-//    self.photoOutput?.capturePhoto(with: settings, delegate: self)
-//    self.photoCaptureCompletionBlock = completion
+    [self toggleFlash];
     
-    AVCapturePhotoSettings * photoSetting = [AVCapturePhotoSettings new];
-    photoSetting.flashMode = self.flashMode;
-    
-    [self.photoOutput capturePhotoWithSettings:photoSetting delegate:self];
+//    AVCapturePhotoSettings * photoSetting = [AVCapturePhotoSettings new];
+//    photoSetting.flashMode = self.flashMode;
+//
+//    [self.photoOutput capturePhotoWithSettings:photoSetting delegate:self];
 }
 
 -(void)setupSession {
@@ -115,9 +109,9 @@
 //    [self.view.layer addSublayer:previewLayer];
     
     self.photoOutput = [[AVCapturePhotoOutput alloc] init];
-//    NSDictionary *outputSettings = @{ AVVideoCodecKey : AVVideoCodecTypeJPEG};
-//    AVCapturePhotoSettings * photoSettings = [AVCapturePhotoSettings photoSettingsWithFormat:outputSettings];
-//    [self.photoOutput setPreparedPhotoSettingsArray:@[photoSettings] completionHandler:nil];
+    NSDictionary *outputSettings = @{ AVVideoCodecKey : AVVideoCodecTypeJPEG};
+    AVCapturePhotoSettings * photoSettings = [AVCapturePhotoSettings photoSettingsWithFormat:outputSettings];
+    [self.photoOutput setPreparedPhotoSettingsArray:@[photoSettings] completionHandler:nil];
     
     if ([self.session canAddOutput:self.photoOutput]) {
         [self.session addOutput:self.photoOutput];
@@ -147,11 +141,31 @@
 }
 
 -(void)toggleFlash {
-    if (self.flashMode == AVCaptureFlashModeOn) {
-        self.flashMode = AVCaptureFlashModeOff;
-    } else {
-        self.flashMode = AVCaptureFlashModeOn;
+//    if (self.flashMode == AVCaptureFlashModeOn) {
+//        self.flashMode = AVCaptureFlashModeOff;
+//    } else {
+//        self.flashMode = AVCaptureFlashModeOn;
+//    }
+    
+    if (self.device == nil) {
+        return;
     }
+    
+    if (self.device.hasTorch == false) {
+        return;
+    }
+    
+    NSError * torchError;
+    
+    [self.device lockForConfiguration:&torchError];
+    
+    if (self.device.torchMode == AVCaptureTorchModeOn) {
+        self.device.torchMode = AVCaptureTorchModeOff;
+    } else {
+        [self.device setTorchModeOnWithLevel:1.0 error:&torchError];
+    }
+    
+    [self.device unlockForConfiguration];
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
