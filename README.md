@@ -1,9 +1,15 @@
 # iCamera
 Live camera filter with CIFilter in Objective-C
 
+<p align="center">
+<img src="https://img.shields.io/badge/platform-iOS%2010%2B-blue.svg?style=flat" alt="Platform: iOS 10+"/>
+<a href="https://developer.apple.com/swift"><img src="https://img.shields.io/badge/language-ObjC-orange" alt="Language: ObjC" /></a>
+<img src="http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat" alt="License: MIT" /> <br><br>
+</p>
+
 <br>
 
-## Install
+## Installation
 
 Add `KTCamera.h` and `KTCamera.m` in your project.
 
