@@ -9,22 +9,17 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <Photos/Photos.h>
+#import "KTCamera.h"
+#import "KTFilterCollectionCell.h"
 
-@interface ViewController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, AVCapturePhotoCaptureDelegate>
+@interface ViewController : UIViewController <KTCameraDelegate, UICollectionViewDelegate, UICollectionViewDataSource>
  
 @property(strong, nonatomic) UIImageView* imageView;
+
+@property(strong, nonatomic) UICollectionView * filterCollectionView;
 @property(strong, nonatomic) UIButton * captureButton;
 
-@property(strong, nonatomic) AVCaptureSession * session;
-
-@property(strong, nonatomic) AVCaptureDevice * device;
-@property(strong, nonatomic) AVCaptureDeviceInput * input;
-
-@property(strong, nonatomic) AVCapturePhotoOutput * photoOutput;
-@property(strong, nonatomic) AVCaptureVideoDataOutput * videoOutput;//AVCapturePhotoOutput
-@property(nonatomic) AVCaptureFlashMode flashMode;
-
-@property(strong, nonatomic) AVCaptureVideoPreviewLayer * previewLayer;
+@property(strong, nonatomic) KTCamera * camera;
 
 
 @end

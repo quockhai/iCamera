@@ -1,2 +1,2 @@
 # iCamera
-Simple photo capture in Objective-C
+Live camera filter with CIFilter in Objective-C

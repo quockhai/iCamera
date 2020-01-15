@@ -7,11 +7,18 @@
 //
 
 #import "ViewController.h"
+#import "KTPreviewImageController.h"
+
+#define kViewHeight 50.0
+#define kSpaceView 10.0
+#define kCornerRadius 5.0
+
+#define kScreenWidth UIScreen.mainScreen.bounds.size.width
+#define kScreenHeight UIScreen.mainScreen.bounds.size.height
 
 @interface ViewController ()
 {
-    CGFloat viewHeight;
-    CGFloat spaceView;
+    NSMutableArray * filters;
 }
 @end
 
@@ -19,11 +26,7 @@
 
 -(void)loadView {
     [super loadView];
-    
-    viewHeight = 50.0;
-    spaceView = 10.0;
-    
-    
+        
     UIImageView* imageView = [[UIImageView alloc] initWithFrame:CGRectZero];
     imageView.translatesAutoresizingMaskIntoConstraints = false;
     [self.view addSubview:imageView];
@@ -31,6 +34,26 @@
     UIButton* captureButton = [[UIButton alloc] initWithFrame:CGRectZero];
     captureButton.translatesAutoresizingMaskIntoConstraints = false;
     [self.view addSubview:captureButton];
+    
+    CGFloat itemSize = kViewHeight * 1.5 - kSpaceView;
+    
+    UICollectionViewFlowLayout * collectionLayout = [[UICollectionViewFlowLayout alloc] init];
+    collectionLayout.itemSize = CGSizeMake(itemSize, itemSize);
+    collectionLayout.sectionInset = UIEdgeInsetsMake(kSpaceView * 0.5, kSpaceView, kSpaceView * 0.5, kSpaceView);
+    collectionLayout.minimumInteritemSpacing = kSpaceView;
+    collectionLayout.minimumLineSpacing = kSpaceView;
+    collectionLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    
+    UICollectionView * filterCollectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:collectionLayout];
+    filterCollectionView.translatesAutoresizingMaskIntoConstraints = false;
+    [self.view addSubview:filterCollectionView];
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [filterCollectionView.widthAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.widthAnchor],
+        [filterCollectionView.heightAnchor constraintEqualToConstant:itemSize + kSpaceView],
+        [filterCollectionView.leftAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leftAnchor],
+        [filterCollectionView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]
+    ]];
     
     [NSLayoutConstraint activateConstraints:@[
        [imageView.widthAnchor constraintEqualToAnchor:self.view.widthAnchor],
@@ -40,203 +63,147 @@
     ]];
     
     [NSLayoutConstraint activateConstraints:@[
-       [captureButton.widthAnchor constraintEqualToConstant:viewHeight * 1.2],
+       [captureButton.widthAnchor constraintEqualToConstant:kViewHeight * 1.2],
        [captureButton.heightAnchor constraintEqualToAnchor:captureButton.widthAnchor],
-       [captureButton.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-spaceView],
+       [captureButton.bottomAnchor constraintEqualToAnchor:filterCollectionView.topAnchor constant:-kSpaceView],
        [captureButton.centerXAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.centerXAnchor]
     ]];
     
     self.imageView = imageView;
     
+    self.filterCollectionView = filterCollectionView;
     self.captureButton = captureButton;
 }
 
 -(void)configureSubViews {
+    self.view.backgroundColor = UIColor.whiteColor;
+    
+    self.filterCollectionView.backgroundColor = [UIColor.blackColor colorWithAlphaComponent:0.25];
+    self.filterCollectionView.dataSource = self;
+    self.filterCollectionView.delegate = self;
+    self.filterCollectionView.pagingEnabled = false;
+    self.filterCollectionView.showsVerticalScrollIndicator = false;
+    self.filterCollectionView.showsHorizontalScrollIndicator = false;
+    [self.filterCollectionView registerClass:[KTFilterCollectionCell class] forCellWithReuseIdentifier:@"filterCell"];
+    
     self.captureButton.backgroundColor = UIColor.whiteColor;
-    self.captureButton.layer.cornerRadius = viewHeight * 0.6;
+    self.captureButton.layer.cornerRadius = kViewHeight * 0.6;
     self.captureButton.layer.masksToBounds = true;
     [self.captureButton addTarget:self action:@selector(captureButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
-    self.flashMode = AVCaptureFlashModeOff;
     
     [self configureSubViews];
     
-    [self setupSession];
+    [self setupFilters];
+    [self setupCamera];
 }
 
--(void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    
-//    [self displayPreview:self.view];
+-(void)setupCamera {
+    self.camera = [KTCamera new];
+    self.camera.delegate = self;
+//    self.camera.filter = [CIFilter filterWithName:@"CIComicEffect"];
+    self.camera.flashMode = AVCaptureFlashModeOff;
+    [self.camera setupSessionWithCompletionHandler:^(NSError * _Nonnull error) {
+        if (error != nil) {
+            NSLog(@"Setup camera error: %@", error.localizedDescription);
+            return;
+        }
+        
+        [self.camera startRunning];
+    }];
 }
 
 -(void)captureButtonTapped:(UIButton*)buton {
-    [self toggleFlash];
-    
-//    AVCapturePhotoSettings * photoSetting = [AVCapturePhotoSettings new];
-//    photoSetting.flashMode = self.flashMode;
-//
-//    [self.photoOutput capturePhotoWithSettings:photoSetting delegate:self];
+    [self.camera capturePhoto];
 }
 
--(void)setupSession {
-    
-    NSError * sessionError = nil;
-    
-    self.session = [[AVCaptureSession alloc] init];
-    
-    AVCaptureDeviceDiscoverySession * discoverySession = [AVCaptureDeviceDiscoverySession discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInWideAngleCamera] mediaType:AVMediaTypeVideo position:AVCaptureDevicePositionUnspecified];
-    
-    for (AVCaptureDevice * camera in discoverySession.devices) {
-        if (camera.position == AVCaptureDevicePositionBack) {
-            self.device = camera;
-        }
-    }
-    
-    self.input = [AVCaptureDeviceInput deviceInputWithDevice:self.device error:&sessionError];
-    
-    if ([self.session canAddInput:self.input]) {
-        [self.session addInput:self.input];
-    }
-    
-//    AVCaptureVideoPreviewLayer * previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
-//    previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-//    previewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortrait;
-//    [self.view.layer addSublayer:previewLayer];
-    
-    self.photoOutput = [[AVCapturePhotoOutput alloc] init];
-    NSDictionary *outputSettings = @{ AVVideoCodecKey : AVVideoCodecTypeJPEG};
-    AVCapturePhotoSettings * photoSettings = [AVCapturePhotoSettings photoSettingsWithFormat:outputSettings];
-    [self.photoOutput setPreparedPhotoSettingsArray:@[photoSettings] completionHandler:nil];
-    
-    if ([self.session canAddOutput:self.photoOutput]) {
-        [self.session addOutput:self.photoOutput];
-    }
-    
-    self.videoOutput = [[AVCaptureVideoDataOutput alloc] init];
-    [self.videoOutput setSampleBufferDelegate:self queue:dispatch_queue_create("VideoDataOutputQueue", DISPATCH_QUEUE_SERIAL)];
-    
-    if ([self.session canAddOutput:self.videoOutput]) {
-        [self.session addOutput:self.videoOutput];
-    }
-    
-    if (sessionError != nil) {
-        NSLog(@"Error: %@", sessionError.localizedDescription);
-        return;
-    }
-    
-    [self.session startRunning];
+#pragma mark - KTCameraDelegate
+-(void)camera:(KTCamera *)camera didOutputSampleImage:(CIImage *)ciImage {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.imageView.image = [UIImage imageWithCIImage:ciImage];
+    });
 }
 
--(void)displayPreview:(UIView*)view {
-    self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
-    self.previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-    self.previewLayer.connection.videoOrientation = AVCaptureVideoOrientationPortrait;
-    [view.layer insertSublayer:self.previewLayer atIndex:0];
-    self.previewLayer.frame = view.frame;
+-(void)camera:(KTCamera *)camera didCaptureImage:(UIImage *)image {
+    KTPreviewImageController * viewController = [[KTPreviewImageController alloc] initWithImage:image];
+    viewController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentViewController:viewController animated:YES completion:nil];
 }
 
--(void)toggleFlash {
-//    if (self.flashMode == AVCaptureFlashModeOn) {
-//        self.flashMode = AVCaptureFlashModeOff;
-//    } else {
-//        self.flashMode = AVCaptureFlashModeOn;
-//    }
+#pragma mark - Filters
+-(void)setupFilters {
+    filters = [NSMutableArray new];
     
-    if (self.device == nil) {
-        return;
+    CIFilter * filter01 = [CIFilter filterWithName:@"CIComicEffect"];
+    [filters addObject:filter01];
+    
+    CIFilter * filter02 = [CIFilter filterWithName:@"CILineOverlay"];
+    [filters addObject:filter02];
+    
+    CIFilter * filter03 = [CIFilter filterWithName:@"CIPhotoEffectTransfer"];
+    [filters addObject:filter03];
+    
+    CIFilter * filter04 = [CIFilter filterWithName:@"CIPhotoEffectTonal"];
+    [filters addObject:filter04];
+    
+    CIFilter * filter05 = [CIFilter filterWithName:@"CISepiaTone"];
+    [filters addObject:filter05];
+    
+    CIFilter * filter06 = [CIFilter filterWithName:@"CIPhotoEffectProcess"];
+    [filters addObject:filter06];
+    
+    CIFilter * filter07 = [CIFilter filterWithName:@"CIPhotoEffectFade"];
+    [filters addObject:filter07];
+    
+    CIFilter * filter08 = [CIFilter filterWithName:@"CIPhotoEffectInstant"];
+    [filters addObject:filter08];
+    
+    CIFilter * filter09 = [CIFilter filterWithName:@"CIPhotoEffectMono"];
+    [filters addObject:filter09];
+    
+    CIFilter * filter10 = [CIFilter filterWithName:@"CIPhotoEffectNoir"];
+    [filters addObject:filter10];
+}
+
+#pragma mark - UICollectionViewDelegate, UICollectionViewDataSource
+-(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return filters.count + 1;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    UIImage *image = [UIImage imageNamed:@"filterImage"];
+    
+    if (indexPath.row > 0) {
+        CIFilter * filter = [filters objectAtIndex:indexPath.row - 1];
+        [filter setValue:[[CIImage alloc] initWithImage:image] forKey:kCIInputImageKey];
+        
+        image = [UIImage imageWithCIImage:filter.outputImage];
     }
     
-    if (self.device.hasTorch == false) {
-        return;
-    }
-    
-    NSError * torchError;
-    
-    [self.device lockForConfiguration:&torchError];
-    
-    if (self.device.torchMode == AVCaptureTorchModeOn) {
-        self.device.torchMode = AVCaptureTorchModeOff;
+    KTFilterCollectionCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"filterCell" forIndexPath:indexPath];
+    cell.imageView.image = image;
+
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.row == 0) {
+        self.camera.filter = nil;
     } else {
-        [self.device setTorchModeOnWithLevel:1.0 error:&torchError];
+        self.camera.filter = [filters objectAtIndex:indexPath.row - 1];
     }
-    
-    [self.device unlockForConfiguration];
 }
 
-#pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
-
--(void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
-//    NSLog(@"VIDEO BUFFER: %fs (%fs)", CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)), CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer)));
+- (UIImage*)filterImage:(CIImage*)inputImage withFilter:(CIFilter*)filter {
+    [filter setValue:inputImage forKey:kCIInputImageKey];
     
-    connection.videoOrientation = AVCaptureVideoOrientationPortrait;
-    
-    CIFilter * filter = [CIFilter filterWithName:@"CIComicEffect"];
-    CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    
-    CIImage * cameraImage = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-    
-    [filter setValue:cameraImage forKey:kCIInputImageKey];
-    
-    CIImage * filteredImage = [filter valueForKey:kCIOutputImageKey];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.imageView.image = [UIImage imageWithCIImage:filteredImage];
-    });
+    return [UIImage imageWithCIImage:filter.outputImage];
 }
-
--(void)captureOutput:(AVCaptureOutput *)output didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
-//    NSLog(@"DROP BUFFER: %fs (%fs)", CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)), CMTimeGetSeconds(CMSampleBufferGetDuration(sampleBuffer)));
-}
-
-#pragma mark - AVCapturePhotoCaptureDelegate
--(void)captureOutput:(AVCapturePhotoOutput *)output didFinishProcessingPhoto:(AVCapturePhoto *)photo error:(NSError *)error {
-    CIFilter * filter = [CIFilter filterWithName:@"CIComicEffect"];
-
-//    CIImage * cameraImage = [CIImage imageWithCVPixelBuffer:photo.CGImageRepresentation];
-    
-    NSData * imageData = photo.fileDataRepresentation;
-    
-    CIImage * ciImage = [CIImage imageWithData:imageData];
-    
-    [filter setValue:ciImage forKey:kCIInputImageKey];
-    
-    CIImage * filteredImage = [filter valueForKey:kCIOutputImageKey];
-    
-    UIImage * image = [UIImage imageWithCIImage:filteredImage];
-    
-    
-    NSLog(@"Image: %@", image);
-    dispatch_async(dispatch_get_main_queue(), ^{
-            NSError * outputError = nil;
-            
-        //    [PHPhotoLibrary.sharedPhotoLibrary performChangesAndWait:^{
-        //        [PHAssetChangeRequest creationRequestForAssetFromImage:image];
-        //    } error:&outputError];
-            
-        //    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
-            
-            [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-                [PHAssetChangeRequest creationRequestForAssetFromImage:image];
-            } completionHandler:^(BOOL success, NSError *error) {
-                if (success) {
-                     NSLog(@"Success");
-                }
-                else {
-                    NSLog(@"write error : %@",error);
-                }
-            }];
-            
-            if (outputError!= nil) {
-                NSLog(@"Capture error: %@", outputError.localizedDescription);
-            }
-    });
-}
-
-//-func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
-
 @end

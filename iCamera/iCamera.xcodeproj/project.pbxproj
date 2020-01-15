@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		88269D5B23CEA15600C8A0C8 /* KTCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = 88269D5A23CEA15600C8A0C8 /* KTCamera.m */; };
 		8882845A23CDA39800631D8B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8882845923CDA39800631D8B /* AppDelegate.m */; };
 		8882845D23CDA39800631D8B /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8882845C23CDA39800631D8B /* SceneDelegate.m */; };
 		8882846023CDA39800631D8B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8882845F23CDA39800631D8B /* ViewController.m */; };
@@ -14,9 +15,14 @@
 		8882846523CDA39B00631D8B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8882846423CDA39B00631D8B /* Assets.xcassets */; };
 		8882846823CDA39B00631D8B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8882846623CDA39B00631D8B /* LaunchScreen.storyboard */; };
 		8882846B23CDA39B00631D8B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8882846A23CDA39B00631D8B /* main.m */; };
+		88E40DB223CEC07800414CDD /* KTFilterCollectionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E40DB123CEC07800414CDD /* KTFilterCollectionCell.m */; };
+		88E40DB423CEC3F000414CDD /* filterImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 88E40DB323CEC3F000414CDD /* filterImage.png */; };
+		88E40DB723CEC63B00414CDD /* KTPreviewImageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E40DB623CEC63B00414CDD /* KTPreviewImageController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		88269D5923CEA15600C8A0C8 /* KTCamera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KTCamera.h; sourceTree = "<group>"; };
+		88269D5A23CEA15600C8A0C8 /* KTCamera.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KTCamera.m; sourceTree = "<group>"; };
 		8882845523CDA39800631D8B /* iCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8882845823CDA39800631D8B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		8882845923CDA39800631D8B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -29,6 +35,11 @@
 		8882846723CDA39B00631D8B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8882846923CDA39B00631D8B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8882846A23CDA39B00631D8B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		88E40DB023CEC07800414CDD /* KTFilterCollectionCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KTFilterCollectionCell.h; sourceTree = "<group>"; };
+		88E40DB123CEC07800414CDD /* KTFilterCollectionCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KTFilterCollectionCell.m; sourceTree = "<group>"; };
+		88E40DB323CEC3F000414CDD /* filterImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = filterImage.png; sourceTree = "<group>"; };
+		88E40DB523CEC63B00414CDD /* KTPreviewImageController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KTPreviewImageController.h; sourceTree = "<group>"; };
+		88E40DB623CEC63B00414CDD /* KTPreviewImageController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KTPreviewImageController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,11 +78,18 @@
 				8882845C23CDA39800631D8B /* SceneDelegate.m */,
 				8882845E23CDA39800631D8B /* ViewController.h */,
 				8882845F23CDA39800631D8B /* ViewController.m */,
+				88E40DB523CEC63B00414CDD /* KTPreviewImageController.h */,
+				88E40DB623CEC63B00414CDD /* KTPreviewImageController.m */,
 				8882846123CDA39800631D8B /* Main.storyboard */,
 				8882846423CDA39B00631D8B /* Assets.xcassets */,
 				8882846623CDA39B00631D8B /* LaunchScreen.storyboard */,
 				8882846923CDA39B00631D8B /* Info.plist */,
 				8882846A23CDA39B00631D8B /* main.m */,
+				88269D5923CEA15600C8A0C8 /* KTCamera.h */,
+				88269D5A23CEA15600C8A0C8 /* KTCamera.m */,
+				88E40DB023CEC07800414CDD /* KTFilterCollectionCell.h */,
+				88E40DB123CEC07800414CDD /* KTFilterCollectionCell.m */,
+				88E40DB323CEC3F000414CDD /* filterImage.png */,
 			);
 			path = iCamera;
 			sourceTree = "<group>";
@@ -136,6 +154,7 @@
 				8882846823CDA39B00631D8B /* LaunchScreen.storyboard in Resources */,
 				8882846523CDA39B00631D8B /* Assets.xcassets in Resources */,
 				8882846323CDA39800631D8B /* Main.storyboard in Resources */,
+				88E40DB423CEC3F000414CDD /* filterImage.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,9 +165,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				88E40DB723CEC63B00414CDD /* KTPreviewImageController.m in Sources */,
+				88269D5B23CEA15600C8A0C8 /* KTCamera.m in Sources */,
 				8882846023CDA39800631D8B /* ViewController.m in Sources */,
 				8882845A23CDA39800631D8B /* AppDelegate.m in Sources */,
 				8882846B23CDA39B00631D8B /* main.m in Sources */,
+				88E40DB223CEC07800414CDD /* KTFilterCollectionCell.m in Sources */,
 				8882845D23CDA39800631D8B /* SceneDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
