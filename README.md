@@ -2,13 +2,17 @@
 Live camera filter with CIFilter in Objective-C
 
 <br>
+
 ## Install
+
 Add `KTCamera.h` and `KTCamera.m` in your project.
 
 <br>
+
 ## Usage
 
 <br>
+
 **Setup & Running camera session**
 
 ```objc
@@ -28,6 +32,7 @@ Add `KTCamera.h` and `KTCamera.m` in your project.
 ```
 
 <br>
+
 **Add camera filter**
 
 ```objc
@@ -35,6 +40,7 @@ self.camera.filter = [CIFilter filterWithName:@"CIComicEffect"];
 ```
 
 <br>
+
 **Capture photo**
 
 ```objc
@@ -42,6 +48,7 @@ self.camera.filter = [CIFilter filterWithName:@"CIComicEffect"];
 ```
 
 <br>
+
 **Delegate handle**
 
 ```objc
@@ -57,6 +64,7 @@ self.camera.filter = [CIFilter filterWithName:@"CIComicEffect"];
 ```
 
 <br>
+
 ## Contributing
 
 As the creators, and maintainers of this project, we're glad to invite contributors to help us stay up to date. 
@@ -66,6 +74,7 @@ As the creators, and maintainers of this project, we're glad to invite contribut
 - If you **want to contribute**, submit a [pull request](https://github.com/quockhai/iCamera/pulls).
 
 <br>
+
 ## License
 
 **KTCamera** is available under the MIT license. See the [LICENSE](https://github.com/quockhai/iCamera/blob/master/LICENSE) file for more info.
